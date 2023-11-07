@@ -1,0 +1,77 @@
+Assignment no : 4
+Aim: 
+Unnamed PL/SQL code block: Use of Control structure and Exception handling is mandatory. Write a PL/SQL block of code for the following requirements:-
+Schema: 1. Borrower(Rollno, Name, DOI, NameofBook, Status)
+2. Fine(Roll_no,sDate,Amt)
+ Accept roll_no & name of book from user.
+ Check the number of days (from date of issue), if days are between 15 to 30 then fine amount will be Rs 5per day.
+ If no. of days>30, per day fine will be Rs 50 per day & for days less than 30, Rs. 5 per day.
+ After submitting the book, status will change from I to R.
+ If condition of fine is true, then details will be stored into fine table.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Code : 
+
+drop procedure if exists p_fine;
+
+    delimiter //
+
+    create procedure p_fine(IN rno int,IN  bname varchar(20))
+    begin
+
+       declare d1 date;    
+       declare daycnt int;
+       declare fine_amt int;
+
+   
+        SELECT DOI into d1 FROM Borrower
+      WHERE Rollno = rno and NameofBook= bname;
+     
+       select DATEDIFF(now(),d1) into daycnt;
+       
+         if(daycnt >= 15 and daycnt <= 30) then
+         
+               set fine_amt := daycnt * 5;
+           
+                 insert into Fine(Roll_no,sDate,Amt) values (rno,now(),fine_amt);
+                                                   
+                 update Borrower set Status = 'R' where Rollno = rno;
+                 
+       ELSEIF(daycnt > 30) then
+       
+                set fine_amt := daycnt * 50;
+           
+                 insert into Fine(Roll_no,sDate,Amt) values (rno,now(),fine_amt);
+                                                   
+                 update Borrower set Status = 'R' where Rollno = rno;
+                 
+         else
+         
+                          update Borrower set Status = 'R' where Rollno = rno;
+               
+         end if;    
+
+     end;
+//
+
+delimiter ;
+
+---------------------------------------------------------------------------
+
+Output:
+
+
+mysql> call p_fine(2,'C++');
+Query OK, 1 row affected (0.16 sec)
+
+mysql> select * from Fine;
++---------+------------+------+
+| Roll_no | sDate      | Amt  |
++---------+------------+------+
+|       1 | 2023-09-18 |  145 |
+|       2 | 2023-09-18 | 3750 |
++---------+------------+------+
+2 rows in set (0.00 sec)
+
+mysql>

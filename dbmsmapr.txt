@@ -1,0 +1,101 @@
+Group B : 
+Pr. no : B3
+Title : 
+
+MongoDB – Map-reduces operations:
+Implement Map reduces operation with suitable example using MongoDB.
+
+
+db.student.mapReduce(function(){emit (this.Rollno,this.FEE);}, function(Rollno,FEE){return Array.sum(FEE)},{query: {Class:"TE"}, out : "Fee_Details" });
+
+
+gescoe@gescoe-OptiPlex-3010:~$ mongo
+MongoDB shell version: 2.6.9
+connecting to: test
+
+> use TE23;
+switched to db TE23
+> db.student.insert({Rollno:1,FEE:25000,Class:"TE"});
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({Rollno:1,FEE:5000,Class:"TE"});
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({Rollno:2,FEE:8000,Class:"TE"});
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({Rollno:2,FEE:12000,Class:"TE"});
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({Rollno:3,FEE:1000,Class:"SE"});
+WriteResult({ "nInserted" : 1 })
+> db.student.find().pretty();
+{
+    "_id" : ObjectId("65362a480d948214a4465db6"),
+    "Rollno" : 1,
+    "FEE" : 25000,
+    "Class" : "TE"
+}
+{
+    "_id" : ObjectId("65362a640d948214a4465db7"),
+    "Rollno" : 1,
+    "FEE" : 5000,
+    "Class" : "TE"
+}
+{
+    "_id" : ObjectId("65362a710d948214a4465db8"),
+    "Rollno" : 2,
+    "FEE" : 8000,
+    "Class" : "TE"
+}
+{
+    "_id" : ObjectId("65362a7f0d948214a4465db9"),
+    "Rollno" : 2,
+    "FEE" : 12000,
+    "Class" : "TE"
+}
+{
+    "_id" : ObjectId("65362a930d948214a4465dba"),
+    "Rollno" : 3,
+    "FEE" : 1000,
+    "Class" : "SE"
+}
+> db.student.mapReduce(function(){emit (this.Rollno,this.FEE);}, function(Rollno,FEE){return Array.sum(FEE)},{query: {Class:"TE"}, out : "Fee_Details" });
+{
+    "result" : "Fee_Details",
+    "timeMillis" : 164,
+    "counts" : {
+        "input" : 4,
+        "emit" : 4,
+        "reduce" : 2,
+        "output" : 2
+    },
+    "ok" : 1
+}
+> db.student.mapReduce(function(){emit (this.Rollno,this.FEE);}, function(key,values){return Array.sum(values)},{query: {Class:"TE"}, out : "Fee_Details" });
+{
+    "result" : "Fee_Details",
+    "timeMillis" : 6,
+    "counts" : {
+        "input" : 4,
+        "emit" : 4,
+        "reduce" : 2,
+        "output" : 2
+    },
+    "ok" : 1
+}
+> db.Fee_Details.find().pretty();
+{ "_id" : 1, "value" : 30000 }
+{ "_id" : 2, "value" : 20000 }
+> db.student.mapReduce(function(){emit (this.Rollno,this.FEE);}, function(key,values){return Array.sum(values)},{query: {Class:"SE"}, out : "Fee_Details" });
+{
+    "result" : "Fee_Details",
+    "timeMillis" : 5,
+    "counts" : {
+        "input" : 1,
+        "emit" : 1,
+        "reduce" : 0,
+        "output" : 1
+    },
+    "ok" : 1
+}
+> db.Fee_Details.find().pretty();
+{ "_id" : 3, "value" : 1000 }
+
+{
